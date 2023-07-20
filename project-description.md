@@ -11,7 +11,7 @@ The project structure is as follows:
 
 - Take the code from the training notebook and put it into a python file 
 - Create a Github Action that trains the model and tracks it with MLflow and uses DVC for the versioning of the train data
-- Update the API that it uses this model and deploy the API
+- Update the API that uses this model and deploy the API
 - Monitor the API and the model using evidently, prometheus and grafana
 
 
