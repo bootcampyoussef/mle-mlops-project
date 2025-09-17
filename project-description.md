@@ -20,4 +20,4 @@ Bonus2: Use the Github Action to retrain the model with new data if you see data
 
 ## How to submit your project
 
-Upload your project on GitHub and send us the link. Answer the questions above in the README.md file.
+Upload your project on GitHub and send us the link.
