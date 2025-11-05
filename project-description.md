@@ -15,7 +15,7 @@ The project structure is as follows:
 - Monitor the API and the model using Evidently, Prometheus and Grafana
 
 
-Bonus 1: Send data to the API and monitor the data with Evidently
+Bonus 1: Send data to the API and monitor the data with Evidently  
 Bonus 2: Use the GitHub Action to retrain the model with new data if you see data drift 
 
 ## How to submit your project
