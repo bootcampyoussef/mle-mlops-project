@@ -3,11 +3,11 @@ name: Reference Solution
 on:
   push:
     paths:
-      - ".github/workflows/reference-solution.yml"
+      - ".github/workflows/reference-solution.yaml"
       - "solution/**"
   pull_request:
     paths:
-      - ".github/workflows/reference-solution.yml"
+      - ".github/workflows/reference-solution.yaml"
       - "solution/**"
 
 jobs:

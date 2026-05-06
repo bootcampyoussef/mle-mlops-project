@@ -2,10 +2,10 @@
 
 This folder contains a small but fully working reference solution for the MLOps project. It is intentionally minimal:
 
-- one reproducible data preparation step;
-- one training step that logs to a local MLflow tracking store;
-- one FastAPI prediction service;
-- one Prometheus and Grafana monitoring stack;
+- one reproducible data preparation step,
+- one training step that logs to a local MLflow tracking store,
+- one FastAPI prediction service,
+- one Prometheus and Grafana monitoring stack,
 - one Evidently report script for recent prediction requests.
 
 The goal is to show the complete flow without adding extra product features.
@@ -14,15 +14,11 @@ The goal is to show the complete flow without adding extra product features.
 
 If you are reading this solution to understand the project end to end, follow this order:
 
-1. run `dvc repro` to build the dataset and train the model;
-2. inspect `src/train.py` and `reports/train_metrics.json` to connect code to metrics;
-3. run the API and send a few prediction requests;
-4. open Prometheus and Grafana to inspect operational metrics;
-5. generate the Evidently report to compare request data with reference data.
-
-## Mermaid Diagrams
-
-The architecture diagram below renders on GitHub and in any Mermaid-capable Markdown previewer.
+1. Run `dvc repro` to build the dataset and train the model.
+2. Inspect `src/train.py` and `reports/train_metrics.json` to connect code to metrics.
+3. Run the API and send a few prediction requests.
+4. Open Prometheus and Grafana to inspect operational metrics.
+5. Generate the Evidently report to compare request data with reference data.
 
 ```mermaid
 flowchart LR
@@ -44,12 +40,13 @@ flowchart LR
 solution/
 ├── .dvc/
 ├── data/
-├── docker-compose.yml
-├── dvc.yaml
+├── models/
 ├── monitoring/
 ├── reports/
-├── requirements.txt
-└── src/
+├── src/
+├── docker-compose.yaml
+├── dvc.yaml
+└── requirements.txt
 ```
 
 ## What This Solution Does
@@ -58,11 +55,11 @@ The solution uses the built-in Iris dataset from `scikit-learn` so the project s
 
 1. `src/prepare_data.py` exports the dataset to `data/raw/iris.csv`.
 2. `src/train.py` trains a simple logistic regression pipeline, saves the model, and logs metrics and artifacts with a local MLflow SQLite tracking store.
-3. `src/api.py` loads the trained model and exposes `/health`, `/predict`, and `/metrics`.
-4. `monitoring/prometheus.yml` scrapes the API metrics endpoint.
+3. `src/api.py` loads the trained model and exposes `/health`, `/predict` and `/metrics`.
+4. `monitoring/prometheus.yaml` scrapes the API metrics endpoint.
 5. `src/generate_report.py` uses Evidently to compare the reference training data with recent API requests.
 
-## Create the Python environment
+## Create the Python Environment
 
 ### `macOS` / `Linux`
 
@@ -112,7 +109,7 @@ Copy-Item .env.example .env
 
 After copying `.env.example` to `.env`, keep the default local URLs unless you intentionally change the local stack ports.
 
-## Run The Full Flow
+## Run the Full Flow
 
 ### 1. Prepare the data and train the model
 
@@ -121,12 +118,12 @@ cd solution
 dvc repro
 ```
 
-That command:
+This command:
 
-- creates `data/raw/iris.csv`;
-- trains the model;
-- writes `models/model.joblib`;
-- stores metrics in `reports/train_metrics.json`;
+- creates `data/raw/iris.csv`,
+- trains the model,
+- writes `models/model.joblib`,
+- stores metrics in `reports/train_metrics.json`,
 - logs artifacts and metrics to the local MLflow tracking files inside `mlflow.db` and `mlartifacts/`.
 
 ### 2. Start the API
@@ -138,9 +135,9 @@ uvicorn src.api:app --reload
 
 Open these endpoints:
 
-- API docs: `http://127.0.0.1:8000/docs`
-- Health check: `http://127.0.0.1:8000/health`
-- Prometheus metrics: `http://127.0.0.1:8000/metrics`
+- API docs: <http://127.0.0.1:8000/docs>
+- Health check: <http://127.0.0.1:8000/health>
+- Prometheus metrics: <http://127.0.0.1:8000/metrics>
 
 ### 3. Send a sample prediction request
 
@@ -155,7 +152,7 @@ curl -X POST http://127.0.0.1:8000/predict \
   }'
 ```
 
-Each request is appended to `monitoring/requests.csv`. That file is later used by the Evidently report.
+Each request is appended to `monitoring/requests.csv`. This file is later used by the Evidently report.
 
 ### 4. Start Prometheus and Grafana
 
@@ -168,8 +165,8 @@ docker compose up --build
 
 Open:
 
-- Prometheus: `http://127.0.0.1:9090`
-- Grafana: `http://127.0.0.1:3000`
+- Prometheus: <http://127.0.0.1:9090>
+- Grafana: <http://127.0.0.1:3000>
 
 Default Grafana credentials:
 
@@ -187,18 +184,16 @@ cd solution
 python src/generate_report.py
 ```
 
-The report is written to:
-
-`monitoring/reports/data_drift_report.html`
+The report is written to `monitoring/reports/data_drift_report.html`.
 
 ## Notes About Simplicity
 
 This reference solution stays deliberately small:
 
-- it uses a local MLflow SQLite tracking store instead of a dedicated MLflow server;
-- it uses DVC stages for reproducibility without adding a remote storage backend;
-- it uses one simple classification model;
-- it monitors the live API with Prometheus and Grafana without adding extra services;
-- it generates the Evidently report from the logged request history instead of a larger monitoring database.
+- It uses a local MLflow SQLite tracking store instead of a dedicated MLflow server.
+- It uses DVC stages for reproducibility without adding a remote storage backend.
+- It uses one simple classification model.
+- It monitors the live API with Prometheus and Grafana without adding extra services.
+- It generates the Evidently report from the logged request history instead of a larger monitoring database.
 
-That makes the solution easier to read while still covering the full assignment workflow.
+That makes the solution easy to read while still covering the full assignment workflow.

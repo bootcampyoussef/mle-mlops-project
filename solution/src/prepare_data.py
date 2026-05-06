@@ -16,7 +16,7 @@ DATA_PATH = DATA_DIR / "iris.csv"
 
 
 def prepare_data() -> Path:
-    """Export Iris data to a learner-friendly CSV file."""
+    """Export Iris data to a beginner-friendly CSV file."""
     iris = load_iris(as_frame=True)
     dataframe = iris.frame.rename(
         columns={

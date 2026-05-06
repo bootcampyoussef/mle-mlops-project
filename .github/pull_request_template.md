@@ -9,7 +9,7 @@
 - [ ] I use DVC to version the training data.
 - [ ] I track training runs with MLflow.
 - [ ] I updated or created an API that serves the trained model.
-- [ ] I added monitoring with Evidently, Prometheus, and Grafana.
+- [ ] I added monitoring with Evidently, Prometheus and Grafana.
 - [ ] I documented how to run the project locally.
 
 Bonus:
