@@ -94,7 +94,7 @@ Measurements must be positive, finite numbers. Invalid requests return HTTP 422 
 
 ### 4. Start Prometheus and Grafana
 
-Stop the local API with **Ctrl+C** before starting the full stack: Docker also uses port 8000. Run Compose from the repository root:
+Stop the local API with `Ctrl + C` before starting the full stack: Docker also uses port 8000. Run Compose from the repository root:
 
 ```bash
 docker compose -f solution/docker-compose.yaml up --build -d

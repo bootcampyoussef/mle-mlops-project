@@ -1,6 +1,6 @@
 # MLOps Project
 
-In this repository, you will turn a notebook-based taxi trip-duration model into a reproducible MLOps workflow. You version training data with DVC, track runs with MLflow, automate training with GitHub Actions, serve predictions through an API, and monitor the system with Evidently, Prometheus, and Grafana.
+Use this repository as a **template** for your MLOps project. You will turn a notebook-based taxi trip-duration model into a reproducible MLOps workflow. You version training data with DVC, track runs with MLflow, automate training with GitHub Actions, serve predictions through an API, and monitor the system with Evidently, Prometheus, and Grafana.
 
 The training notebook is included so you can start from the model used in the monitoring lesson. Keep your project small and use pull requests in your own repository to track your work, even when working alone.
 
@@ -18,15 +18,15 @@ By the end of this repository, you should be able to:
 
 | File / Folder | Description |
 |---|---|
-| [**project-description.md**](project-description.md) | Assignment brief, deliverables, and suggested milestones. |
+| [**Project Description**](project-description.md) | Assignment brief, deliverables, and suggested milestones. |
 | [**01 - Train an ML Model**](01-train-ml-model.ipynb) | Supplied taxi training notebook to refactor into reusable Python code. |
-| [**solution/README.md**](solution/README.md) | Optional reference workflow using Iris, DVC, MLflow, FastAPI, and monitoring. |
 
 ### Additional Folders and Files
 
 | File / Folder | Description |
 |---|---|
-| [**assets**](assets/) | MLflow screenshot used by the supplied notebook. |
+| [**assets**](assets/) | Visual aids referenced in the repository. |
+| [**solution/README.md**](solution/README.md) | Optional reference workflow using Iris, DVC, MLflow, FastAPI, and monitoring. |
 | [**solution/src**](solution/src/) | Data preparation, training, API, and report scripts for the reference solution. |
 | [**solution/monitoring**](solution/monitoring/) | Prometheus configuration and provisioned Grafana dashboard. |
 | [**solution/docker-compose.yaml**](solution/docker-compose.yaml) | The three-service reference stack. |
