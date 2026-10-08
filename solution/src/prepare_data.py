@@ -9,7 +9,6 @@ from pathlib import Path
 
 from sklearn.datasets import load_iris
 
-
 ROOT_DIR = Path(__file__).resolve().parents[1]
 DATA_DIR = ROOT_DIR / "data" / "raw"
 DATA_PATH = DATA_DIR / "iris.csv"

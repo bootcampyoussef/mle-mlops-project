@@ -4,9 +4,11 @@ This project is intentionally small, but it mirrors the workflow of a real produ
 
 ## Main Goal
 
-Build a small but complete MLOps workflow around the model you trained during the Evidently introduction.
+Build a small but complete MLOps workflow around the model you trained during the Evidently introduction. A copy of the training notebook is supplied in [01-train-ml-model.ipynb](01-train-ml-model.ipynb), so you do not need to retrieve it from another repository.
 
-If you want a runnable baseline to compare your own work against, see the self-contained reference implementation in [solution/README.md](solution/README.md).
+The supplied model uses completed taxi trips for historical replay. `trip_distance` is the taximeter distance measured during the trip, not an estimate available at pickup. Keep that scope explicit when presenting your API and monitoring results.
+
+If you want a runnable baseline to compare your own work against, see the reference implementation in [solution/README.md](solution/README.md). It uses Iris to demonstrate the same operational steps with a small local dataset; your project should refactor the supplied taxi model.
 
 Your final project should show that you can move from experimentation to operations:
 
@@ -25,6 +27,7 @@ Your final project should show that you can move from experimentation to operati
 
 Suggested steps:
 
+- Start from [01-train-ml-model.ipynb](01-train-ml-model.ipynb) and verify its baseline before refactoring.
 - Create a small training entry point such as `src/train.py`.
 - Move preprocessing, training and evaluation into reusable functions.
 - Save the trained artifact in a predictable location.
@@ -52,6 +55,7 @@ Deliverables:
 
 Hints:
 
+- Initialize DVC at the repository root for your taxi pipeline. `solution/.dvc/` belongs to the separate Iris example.
 - Keep the first DVC setup simple.
 - Track only the data needed to reproduce training.
 
@@ -59,9 +63,12 @@ Hints:
 
 **Objective:** Run the training pipeline automatically from CI.
 
+The supplied [reference workflow](.github/workflows/reference-solution.yaml) validates the Iris solution only. Create or adapt a workflow for your taxi pipeline; a successful reference run does not validate your own training code.
+
 Suggested steps:
 
 - Create a workflow that installs dependencies and runs the training script.
+- Use Python 3.13, `uv sync --locked`, and `uv run` so CI uses the same locked dependencies as your local environment.
 - Make sure the workflow can access the data required for training.
 - Log the training run to MLflow as part of the workflow.
 
@@ -93,6 +100,7 @@ Suggested steps:
 
 - Expose API metrics for Prometheus.
 - Create at least one Grafana dashboard.
+- Send a batch of requests to the API to populate the metrics and monitoring data.
 - Configure Evidently to monitor predictions, input data, or drift indicators.
 
 Deliverables:
@@ -116,12 +124,14 @@ You do not need to match this structure exactly, but a project like the followin
 ├── monitoring/
 ├── models/
 ├── dvc.yaml
-├── requirements.txt
+├── .python-version
+├── pyproject.toml
+├── uv.lock
 └── README.md
 ```
 
 ## Bonus Ideas
 
-- Send requests to the API and monitor the incoming data with Evidently.
+- Compare a baseline request batch with a deliberately shifted batch and interpret the drift report.
 - Trigger retraining when you detect meaningful data drift.
 - Add a small smoke test for the API or training entry point.

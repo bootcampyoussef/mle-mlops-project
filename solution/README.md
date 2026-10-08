@@ -1,20 +1,12 @@
 # Reference Solution
 
-This folder contains a small but fully working reference solution for the MLOps project. It is intentionally minimal:
-
-- one reproducible data preparation step,
-- one training step that logs to a local MLflow tracking store,
-- one FastAPI prediction service,
-- one Prometheus and Grafana monitoring stack,
-- one Evidently report script for recent prediction requests.
-
-The goal is to show the complete flow without adding extra product features.
+This folder contains a small reference solution for the MLOps project. It uses scikit-learn's built-in Iris dataset to illustrate the workflow; the project assignment uses the taxi notebook at [../01-train-ml-model.ipynb](../01-train-ml-model.ipynb).
 
 ## Learning Path
 
 If you are reading this solution to understand the project end to end, follow this order:
 
-1. Run `dvc repro` to build the dataset and train the model.
+1. Run `uv run --directory solution dvc repro` to build the dataset and train the model.
 2. Inspect `src/train.py` and `reports/train_metrics.json` to connect code to metrics.
 3. Run the API and send a few prediction requests.
 4. Open Prometheus and Grafana to inspect operational metrics.
@@ -22,7 +14,7 @@ If you are reading this solution to understand the project end to end, follow th
 
 ```mermaid
 flowchart LR
-  A["Iris source data"] --> B["dvc repro"]
+  A["Iris source data"] --> B["uv run dvc repro"]
   B --> C["prepare_data.py"]
   B --> D["train.py"]
   D --> E["models/model.joblib"]
@@ -46,76 +38,21 @@ solution/
 ├── src/
 ├── docker-compose.yaml
 ├── dvc.yaml
-└── requirements.txt
+└── Dockerfile
 ```
 
-## What This Solution Does
+## Setup
 
-The solution uses the built-in Iris dataset from `scikit-learn` so the project stays self-contained.
+Follow the repository [setup instructions](../README.md#setup) first. The solution uses Python 3.13 and the root [pyproject.toml](../pyproject.toml) and [uv.lock](../uv.lock); it does not need a second environment or dependency file.
 
-1. `src/prepare_data.py` exports the dataset to `data/raw/iris.csv`.
-2. `src/train.py` trains a simple logistic regression pipeline, saves the model, and logs metrics and artifacts with a local MLflow SQLite tracking store.
-3. `src/api.py` loads the trained model and exposes `/health`, `/predict` and `/metrics`.
-4. `monitoring/prometheus.yaml` scrapes the API metrics endpoint.
-5. `src/generate_report.py` uses Evidently to compare the reference training data with recent API requests.
-
-## Create the Python Environment
-
-### `macOS` / `Linux`
-
-```bash
-pyenv local 3.11.3
-python -m venv .venv
-source .venv/bin/activate
-python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
-```
-
-### `Windows`
-
-For `Git Bash` CLI:
-
-```bash
-pyenv local 3.11.3
-python -m venv .venv
-source .venv/Scripts/activate
-python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
-```
-
-For `PowerShell` CLI:
-
-```powershell
-pyenv local 3.11.3
-python -m venv .venv
-.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
-```
-
-Then copy the default local environment file:
-
-**`macOS`** / **`Linux`** / **`Git Bash`**
-
-```bash
-cp .env.example .env
-```
-
-**`PowerShell`**
-
-```powershell
-Copy-Item .env.example .env
-```
-
-After copying `.env.example` to `.env`, keep the default local URLs unless you intentionally change the local stack ports.
+Run every command below from the **repository root**, not from `solution/`. `uv run --directory solution` changes the working directory for that command while reusing the root `.venv/`.
 
 ## Run the Full Flow
 
 ### 1. Prepare the data and train the model
 
 ```bash
-cd solution
-dvc repro
+uv run --directory solution dvc repro
 ```
 
 This command:
@@ -129,8 +66,7 @@ This command:
 ### 2. Start the API
 
 ```bash
-cd solution
-uvicorn src.api:app --reload
+uv run --directory solution uvicorn src.api:app --reload --port 8000
 ```
 
 Open these endpoints:
@@ -154,13 +90,14 @@ curl -X POST http://127.0.0.1:8000/predict \
 
 Each request is appended to `monitoring/requests.csv`. This file is later used by the Evidently report.
 
+Measurements must be positive, finite numbers. Invalid requests return HTTP 422 without entering the prediction log.
+
 ### 4. Start Prometheus and Grafana
 
-Run these services from a second terminal:
+Stop the local API with **Ctrl+C** before starting the full stack: Docker also uses port 8000. Run Compose from the repository root:
 
 ```bash
-cd solution
-docker compose up --build
+docker compose -f solution/docker-compose.yaml up --build -d
 ```
 
 Open:
@@ -173,27 +110,50 @@ Default Grafana credentials:
 - username: `admin`
 - password: `admin`
 
-The dashboard is provisioned automatically and shows request volume and average latency.
+The dashboard is provisioned automatically and shows request volume and average latency. Send the sample batch below to populate the container's API metrics and request log.
 
 ### 5. Generate an Evidently report
 
-After sending at least five prediction requests:
+With the API running, send the supplied batch of six requests, two observations per Iris class:
 
 ```bash
-cd solution
-python src/generate_report.py
+uv run python solution/src/send_sample_requests.py
 ```
 
-The report is written to `monitoring/reports/data_drift_report.html`.
+Then generate the report:
 
-## Notes About Simplicity
+```bash
+uv run python solution/src/generate_report.py
+```
 
-This reference solution stays deliberately small:
+Open `solution/monitoring/reports/data_drift_report.html` in a browser. It is a static snapshot: rerun the report command after new requests. Grafana refreshes API metrics separately.
 
-- It uses a local MLflow SQLite tracking store instead of a dedicated MLflow server.
-- It uses DVC stages for reproducibility without adding a remote storage backend.
-- It uses one simple classification model.
-- It monitors the live API with Prometheus and Grafana without adding extra services.
-- It generates the Evidently report from the logged request history instead of a larger monitoring database.
+The **reference** is the full Iris CSV at `solution/data/raw/iris.csv`, not just the training split. The **current** data contains every successful prediction request in `solution/monitoring/requests.csv`, with no time-window filter. Both are restricted to the four input measurements; labels and predictions are excluded.
 
-That makes the solution easy to read while still covering the full assignment workflow.
+| Report element | What to check |
+|---|---|
+| Dataset summary | Number and share of drifting features. The default dataset drift threshold is 50%, or two of the four features here. |
+| Per-feature results | Method, score, threshold, and drift status. Scores are method-specific, not always p-values; see Evidently's [default method selection](https://docs.evidentlyai.com/metrics/preset_data_drift). |
+| Distribution plots | Expand a feature to compare reference and current values and investigate the shift. |
+
+Drift is not a measurement of prediction accuracy or an automatic reason to retrain. The log has no ground-truth labels, and the six-request batch only demonstrates the workflow. The script's five-row minimum is not a statistical reliability threshold; interpret results on a larger, representative batch.
+
+## API Smoke Check
+
+After training, run the same check as the reference GitHub Actions workflow:
+
+```bash
+uv run --directory solution python -m src.check_api
+```
+
+It checks `/health`, a valid prediction, and HTTP 422 for a negative measurement. No server needs to be running, and the check uses a temporary request log so it does not change the monitoring history.
+
+## Cleanup
+
+Stop the Compose stack when you finish:
+
+```bash
+docker compose -f solution/docker-compose.yaml down
+```
+
+This keeps the locally generated model, request log, and reports for your next run.

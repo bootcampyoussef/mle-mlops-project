@@ -10,10 +10,9 @@ from typing import Any
 import joblib
 import pandas as pd
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel, Field
 from prometheus_client import CONTENT_TYPE_LATEST, Counter, Histogram, generate_latest
+from pydantic import BaseModel, Field
 from starlette.responses import Response
-
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
 MODEL_PATH = ROOT_DIR / "models" / "model.joblib"
@@ -37,21 +36,21 @@ app = FastAPI(title="MLOps Reference Solution API", version="1.0.0")
 class PredictionRequest(BaseModel):
     """Input schema expected by the trained Iris model."""
 
-    sepal_length_cm: float = Field(..., examples=[5.1])
-    sepal_width_cm: float = Field(..., examples=[3.5])
-    petal_length_cm: float = Field(..., examples=[1.4])
-    petal_width_cm: float = Field(..., examples=[0.2])
+    sepal_length_cm: float = Field(..., gt=0, allow_inf_nan=False, examples=[5.1])
+    sepal_width_cm: float = Field(..., gt=0, allow_inf_nan=False, examples=[3.5])
+    petal_length_cm: float = Field(..., gt=0, allow_inf_nan=False, examples=[1.4])
+    petal_width_cm: float = Field(..., gt=0, allow_inf_nan=False, examples=[0.2])
 
 
 def _load_model() -> tuple[Any, dict[str, Any]]:
     """Load the trained model and its metadata from disk."""
     if not MODEL_PATH.exists():
         raise FileNotFoundError(
-            "The trained model is missing. Run `dvc repro` inside `solution/` first."
+            "The trained model is missing. Run `uv run dvc repro` inside `solution/` first."
         )
     if not MODEL_METADATA_PATH.exists():
         raise FileNotFoundError(
-            "The model metadata is missing. Run `dvc repro` inside `solution/` first."
+            "The model metadata is missing. Run `uv run dvc repro` inside `solution/` first."
         )
 
     model = joblib.load(MODEL_PATH)
