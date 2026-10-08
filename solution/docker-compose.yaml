@@ -11,7 +11,7 @@ services:
       - ./monitoring:/app/monitoring
 
   prometheus:
-    image: prom/prometheus:v3.7.3
+    image: prom/prometheus:v3.15.0
     command:
       - "--config.file=/etc/prometheus/prometheus.yaml"
     depends_on:
@@ -22,7 +22,7 @@ services:
       - ./monitoring/prometheus.yaml:/etc/prometheus/prometheus.yaml:ro
 
   grafana:
-    image: grafana/grafana:13.0.1
+    image: grafana/grafana:13.2.3
     depends_on:
       - prometheus
     ports:
