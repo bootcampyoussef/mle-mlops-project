@@ -102,7 +102,7 @@ Teammates should accept the invitation before continuing.
 
 ---
 
-### 3. Clone Your Copy
+### 3. Clone the Repository
 
 Copy the SSH URL from the **Code** button on GitHub, then run:
 
