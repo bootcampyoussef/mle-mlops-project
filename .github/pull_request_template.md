@@ -10,9 +10,10 @@
 - [ ] I track training runs with MLflow.
 - [ ] I updated or created an API that serves the trained model.
 - [ ] I added monitoring with Evidently, Prometheus and Grafana.
+- [ ] I sent prediction requests and inspected the monitoring output.
 - [ ] I documented how to run the project locally.
 
 Bonus:
 
-- [ ] I send requests to the API and monitor the data with Evidently.
+- [ ] I compared baseline and deliberately shifted request batches and interpreted the drift report.
 - [ ] I retrain the model with new data if I see data drift.

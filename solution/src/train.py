@@ -14,7 +14,6 @@ from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
-
 ROOT_DIR = Path(__file__).resolve().parents[1]
 DATA_PATH = ROOT_DIR / "data" / "raw" / "iris.csv"
 MODEL_DIR = ROOT_DIR / "models"
@@ -103,8 +102,8 @@ def train_model() -> dict[str, float | int | str]:
 
         metrics = {
             "accuracy": round(float(accuracy), 4),
-            "train_rows": int(len(X_train)),
-            "test_rows": int(len(X_test)),
+            "train_rows": len(X_train),
+            "test_rows": len(X_test),
             "model_type": "logistic_regression",
         }
         metadata = {

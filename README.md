@@ -1,24 +1,42 @@
 # MLOps Project
 
-Please **use this repository as a template** for your MLOps project. Create pull requests in your own repository even if you are working alone, and use them to track the work you complete.
+Use this repository as a **template** for your MLOps project. You will turn a notebook-based taxi trip-duration model into a reproducible MLOps workflow. You version training data with DVC, track runs with MLflow, automate training with GitHub Actions, serve predictions through an API, and monitor the system with Evidently, Prometheus, and Grafana.
 
-This repository is a template for an end-to-end MLOps project. You will turn a notebook-based model into a reproducible training pipeline, track experiments and artifacts, expose the model through an API, and monitor both predictions and data quality.
+The training notebook is included so you can start from the model used in the monitoring lesson. Keep your project small and use pull requests in your own repository to track your work, even when working alone.
 
-## Project Hub
+## Learning Objectives
 
-- [README.md](./README.md): Repository overview, setup and workflow.
-- [project-description.md](./project-description.md): Assignment brief, deliverables and suggested milestones.
-- [requirements.txt](./requirements.txt): Pinned Python dependencies for the local environment.
+By the end of this repository, you should be able to:
+
+- Convert notebook experimentation into reusable training code.
+- Automate retraining with GitHub Actions.
+- Version training data and model artifacts with DVC and MLflow.
+- Serve a trained model through an API.
+- Monitor model behavior, data quality and operational metrics with an observability stack.
 
 ## Learning Path
 
-Work through the project in this order:
+| File / Folder | Description |
+|---|---|
+| [**Project Description**](project-description.md) | Assignment brief, deliverables, and suggested milestones. |
+| [**01 - Train an ML Model**](01-train-ml-model.ipynb) | Supplied taxi training notebook to refactor into reusable Python code. |
 
-1. Refactor the training notebook into reusable Python modules or scripts.
-2. Version the training data with DVC and track model runs with MLflow.
-3. Automate training in a GitHub Actions workflow.
-4. Serve the trained model through an API.
-5. Monitor the API, predictions and incoming data with Evidently, Prometheus and Grafana.
+### Additional Folders and Files
+
+| File / Folder | Description |
+|---|---|
+| [**assets**](assets/) | Visual aids referenced in the repository. |
+| [**solution/README.md**](solution/README.md) | Optional reference workflow using Iris, DVC, MLflow, FastAPI, and monitoring. |
+| [**solution/src**](solution/src/) | Data preparation, training, API, and report scripts for the reference solution. |
+| [**solution/monitoring**](solution/monitoring/) | Prometheus configuration and provisioned Grafana dashboard. |
+| [**solution/docker-compose.yaml**](solution/docker-compose.yaml) | The three-service reference stack. |
+| [**.github/workflows/reference-solution.yaml**](.github/workflows/reference-solution.yaml) | Existing workflow that validates the reference pipeline and API. |
+| [**pyproject.toml**](pyproject.toml) | Project configuration and dependencies. |
+| [**uv.lock**](uv.lock) | Dependency lock file shared by the notebook and reference solution. |
+
+The starter notebook comes from [mle-monitoring-in-ml](https://github.com/neuefische/mle-monitoring-in-ml/blob/2a805a98f7d6cf2266b291c0984c98f93bc6d9d3/01-train-ml-model.ipynb). The Iris solution illustrates the operational workflow; it is not a replacement for refactoring your taxi model.
+
+## Project Flow
 
 ```mermaid
 flowchart LR
@@ -30,90 +48,119 @@ flowchart LR
     F --> G["Prometheus metrics"]
     F --> H["Evidently monitoring"]
     G --> I["Grafana dashboards"]
-    H --> I
+    H --> J["HTML drift report"]
 ```
-
-## Reference Solution
-
-A fully working reference implementation lives in [solution/README.md](solution/README.md).
-
-That folder is self-contained and includes:
-
-- reproducible data preparation with DVC,
-- local MLflow logging during training,
-- a FastAPI prediction service,
-- Prometheus and Grafana monitoring,
-- an Evidently report script for recent prediction requests.
-
-If you want to inspect a complete baseline before building your own version, start there.
 
 ## Local Data Services
 
-A typical local stack includes:
+The notebook uses a local MLflow SQLite tracking store. The reference solution provides an API, Prometheus, and Grafana through Docker Compose:
 
-- an API service that loads the latest trained model,
-- an MLflow tracking server for experiment runs and artifacts,
-- a monitoring stack with Evidently, Prometheus and Grafana,
-- a DVC remote or local storage path for versioned training data.
+| Service | Local URL |
+|---|---|
+| Notebook MLflow UI (when started) | <http://127.0.0.1:5000> |
+| Reference prediction API / Swagger UI | <http://127.0.0.1:8000/docs> |
+| Prometheus targets | <http://127.0.0.1:9090/targets> |
+| Grafana | <http://127.0.0.1:3000> |
 
-If you containerize the project, keep the services small and focused. A lightweight `docker compose` setup is enough for local validation.
+Grafana's initial local login is `admin` / `admin`. These services and default credentials are for local learning, not public deployment. Follow [solution/README.md](solution/README.md) to start the reference stack.
 
-## Environment
+## Prerequisites
 
-Please set up a new virtual environment. You can use the following commands:
+- **Docker Desktop**: required for the reference monitoring stack and for validating a containerized project. Follow the [installation instructions](https://docs.docker.com/get-docker/) if you do not have it yet. Make sure it is **installed and running** before starting the containers.
 
-### `macOS` / `Linux`
+## Setup
+
+> [!NOTE]
+> Throughout these steps, text in angle brackets like `<repo-name>` is a **placeholder**. Replace it, including the `< >` brackets, with your own value. For example, `cd <repo-name>` becomes `cd mle-mlops-project`.
+
+### 1. Use This Repository as a Template
+
+Click **Use this template** on GitHub.
+
+When creating the repository:
+
+- Set yourself as the **Owner**
+- Choose a repository name
+- Disable **Include all branches**
+- Click **Create repository**
+
+> [!IMPORTANT]
+> If you are working in pairs or groups, only **one person** should complete this step.
+
+---
+
+### 2. Add Collaborators (Pairs/Groups Only)
+
+If working with teammates:
+
+1. Open the repository on GitHub
+2. Go to **Settings → Collaborators**
+3. Add your teammates as collaborators
+4. Share the repository link with your team
+
+Teammates should accept the invitation before continuing.
+
+---
+
+### 3. Clone Your Copy
+
+Copy the SSH URL from the **Code** button on GitHub, then run:
 
 ```bash
-pyenv local 3.11.3
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
+git clone <copied-ssh-url>
 ```
 
-### `Windows`
+The copied SSH URL will look like `git@github.com:<your-username>/<repo-name>.git`.
 
-For `Git Bash` CLI:
+---
+
+### 4. Move into the Project Folder and Install Dependencies
+
+This project uses Python 3.13. The command below installs all dependencies and creates a virtual environment in `.venv/`.
 
 ```bash
-pyenv local 3.11.3
-python -m venv .venv
-source .venv/Scripts/activate
-python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
+cd <repo-name>
+uv sync
 ```
 
-For `PowerShell` CLI:
+The notebook and `solution/` share this environment. Do not create another environment inside `solution/`.
 
-```powershell
-pyenv local 3.11.3
-python -m venv .venv
-.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
-```
+---
 
-Then copy the default local environment file:
+### 5. Create the Environment File
 
-**`macOS`** / **`Linux`** / **`Git Bash`**
+Copy the template once:
 
 ```bash
 cp .env.example .env
 ```
 
-**`PowerShell`**
+Keep the default local tracking URI for the taxi notebook. The Iris reference solution manages its own tracking store in `solution/mlflow.db`.
 
-```powershell
-Copy-Item .env.example .env
+> [!CAUTION]
+> Never commit `.env`. It is git-ignored because environment files often hold secrets. Only `.env.example`, with placeholder or default values, belongs in the repository.
+
+---
+
+### 6. Open the Repository in VS Code
+
+> [!NOTE]
+> Make sure you open VS Code from the project root so it automatically detects the environment created by `uv sync`.
+
+Launch VS Code in the project root folder:
+
+```bash
+code .
 ```
 
-After copying `.env.example` to `.env`, keep the default local URLs unless you intentionally change the local stack ports.
+Then open [01-train-ml-model.ipynb](01-train-ml-model.ipynb) and select the Python environment created by `uv sync` as the kernel.
 
-## Learning Objectives
+Run the notebook from the project root. Python commands use `uv run`, so the environment is selected automatically; no manual activation is needed.
 
-- Convert notebook experimentation into reusable training code.
-- Automate retraining with GitHub Actions.
-- Version training data and model artifacts with DVC and MLflow.
-- Serve a trained model through an API.
-- Monitor model behavior, data quality and operational metrics with an observability stack.
+## References & Further Reading
+
+- [DVC Pipelines](https://dvc.org/doc/user-guide/pipelines): Version training inputs and reproduce dependent stages.
+- [MLflow Model Registry Workflows](https://mlflow.org/docs/latest/ml/model-registry/workflow/): Register models, manage versions, and assign aliases.
+- [Evidently Reports](https://docs.evidentlyai.com/docs/library/report): Compare reference and current datasets and export reports.
+- [Prometheus Overview](https://prometheus.io/docs/introduction/overview/): Understand metric scraping, time series, and PromQL queries.
+- [Grafana Provisioning](https://grafana.com/docs/grafana/latest/administration/provisioning/): Load data sources and dashboards from version-controlled files.

@@ -1,12 +1,17 @@
-FROM python:3.11-slim
+FROM ghcr.io/astral-sh/uv:0.11.19 AS uv
+FROM python:3.13-slim-bookworm
 
 WORKDIR /app
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+ENV UV_COMPILE_BYTECODE=1 \
+    UV_LINK_MODE=copy
 
-COPY . .
+COPY --from=uv /uv /uvx /bin/
+COPY pyproject.toml uv.lock .python-version ./
+RUN uv sync --locked --no-dev --no-install-project --no-cache
+
+COPY solution/ ./
 
 EXPOSE 8000
 
-CMD ["uvicorn", "src.api:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uv", "run", "--no-sync", "uvicorn", "src.api:app", "--host", "0.0.0.0", "--port", "8000"]
